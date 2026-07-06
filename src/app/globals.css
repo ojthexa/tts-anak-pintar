@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+@theme {
+  /* Claymorphism color palette - soft pastels */
+  --color-clay-primary: #f8b4c8;
+  --color-clay-secondary: #b8d4e3;
+  --color-clay-accent: #a8e6cf;
+  --color-clay-warm: #ffd3b6;
+  --color-clay-sand: #f5e6cc;
+  --color-clay-lavender: #d4c5f9;
+  --color-clay-peach: #ffb3a7;
+  --color-clay-mint: #b5ead7;
+  --color-clay-sky: #c7ecee;
+  --color-clay-sunshine: #ffeba7;
+
+  /* Deep shadows for claymorphism */
+  --color-clay-shadow: rgba(163, 177, 198, 0.4);
+  --color-clay-highlight: rgba(255, 255, 255, 0.8);
+
+  /* Font */
+  --font-sans: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Border radius */
+  --radius-clay: 20px;
+  --radius-clay-sm: 12px;
+  --radius-clay-lg: 28px;
+  --radius-clay-xl: 36px;
+
+  /* Animations */
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-bounce-soft: bounce-soft 2s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+  --animate-wiggle: wiggle 0.5s ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Claymorphism utility classes */
+.clay {
+  background: linear-gradient(145deg, #ffffff, #e6e9f0);
+  box-shadow:
+    8px 8px 16px var(--color-clay-shadow),
+    -8px -8px 16px var(--color-clay-highlight);
+  border-radius: var(--radius-clay);
+}
+
+.clay-sm {
+  background: linear-gradient(145deg, #ffffff, #e6e9f0);
+  box-shadow:
+    4px 4px 8px var(--color-clay-shadow),
+    -4px -4px 8px var(--color-clay-highlight);
+  border-radius: var(--radius-clay-sm);
+}
+
+.clay-lg {
+  background: linear-gradient(145deg, #ffffff, #e6e9f0);
+  box-shadow:
+    12px 12px 24px var(--color-clay-shadow),
+    -12px -12px 24px var(--color-clay-highlight);
+  border-radius: var(--radius-clay-lg);
+}
+
+.clay-inset {
+  background: #e6e9f0;
+  box-shadow:
+    inset 4px 4px 8px var(--color-clay-shadow),
+    inset -4px -4px 8px var(--color-clay-highlight);
+  border-radius: var(--radius-clay-sm);
+}
+
+.clay-colored {
+  background: linear-gradient(145deg, #ffffff, #d4e0f0);
+  box-shadow:
+    6px 6px 12px var(--color-clay-shadow),
+    -6px -6px 12px var(--color-clay-highlight);
+  border-radius: var(--radius-clay);
+}
+
+.clay-pressed {
+  background: linear-gradient(145deg, #e6e9f0, #ffffff);
+  box-shadow:
+    inset 2px 2px 4px var(--color-clay-shadow),
+    inset -2px -2px 4px var(--color-clay-highlight);
+  border-radius: var(--radius-clay-sm);
+}
+
+.clay-text {
+  color: #4a5568;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Dark mode overrides for claymorphism */
+.dark .clay {
+  background: linear-gradient(145deg, #2d3748, #1a202c);
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.4),
+    -8px -8px 16px rgba(255, 255, 255, 0.05);
+}
+
+.dark .clay-sm {
+  background: linear-gradient(145deg, #2d3748, #1a202c);
+  box-shadow:
+    4px 4px 8px rgba(0, 0, 0, 0.4),
+    -4px -4px 8px rgba(255, 255, 255, 0.05);
+}
+
+.dark .clay-lg {
+  background: linear-gradient(145deg, #2d3748, #1a202c);
+  box-shadow:
+    12px 12px 24px rgba(0, 0, 0, 0.4),
+    -12px -12px 24px rgba(255, 255, 255, 0.05);
+}
+
+.dark .clay-inset {
+  background: #1a202c;
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-sans);
+  background-color: #f0f2f5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark body {
+  background-color: #0f1419;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4c9d4;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a5568;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #a8e6cf;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Selection */
+::selection {
+  background: #b8d4e3;
+  color: #1a202c;
+}
+
+.dark ::selection {
+  background: #4a5568;
+  color: #f7fafc;
+}
+
+/* Responsive font sizes */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Print styles - optimized for crossword */
+@media print {
+  @page {
+    margin: 1cm;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .clay, .clay-sm, .clay-lg, .clay-inset, .clay-pressed {
+    background: none !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+
+  .dark body,
+  .dark .clay,
+  .dark .clay-sm,
+  .dark .clay-lg {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Large font mode for accessibility */
+html.font-large {
+  font-size: 20px;
+}
+
+html.font-large .clay-sm {
+  padding: 0.75rem 1rem;
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

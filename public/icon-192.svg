@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8e6cf"/>
+      <stop offset="100%" style="stop-color:#7ed5b0"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="40" fill="url(#bg)"/>
+  <!-- Puzzle piece shape -->
+  <g transform="translate(26, 26) scale(1.4)">
+    <rect x="20" y="10" width="60" height="60" rx="6" fill="white" opacity="0.9"/>
+    <circle cx="50" cy="10" r="12" fill="url(#bg)"/>
+    <rect x="20" y="70" width="60" height="60" rx="6" fill="white" opacity="0.85"/>
+    <circle cx="50" cy="70" r="12" fill="url(#bg)"/>
+    <rect x="80" y="10" width="60" height="60" rx="6" fill="white" opacity="0.8"/>
+    <rect x="80" y="70" width="60" height="60" rx="6" fill="white" opacity="0.75"/>
+    <circle cx="110" cy="70" r="12" fill="url(#bg)"/>
+  </g>
+  <!-- Letter TTS -->
+  <text x="96" y="135" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#2d3748" opacity="0.9">TTS</text>
+</svg>
