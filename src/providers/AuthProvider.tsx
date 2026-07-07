@@ -1,9 +1,19 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { getSupabaseClient } from "@/services/supabase/client";
+import { getSupabaseClient, isSupabaseConfigured } from "@/services/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import type { UserProfile } from "@/types/user";
+
+/** Safe getSession that won't crash if Supabase is not configured */
+async function safeGetSession(supabase: ReturnType<typeof getSupabaseClient>) {
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.user ?? null;
+  } catch {
+    return null;
+  }
+}
 
 interface AuthContextType {
   user: User | null;
@@ -60,11 +70,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, loadProfile]);
 
   useEffect(() => {
+    // Skip auth if Supabase not configured
+    if (!isSupabaseConfigured()) {
+      console.log("Supabase not configured — running in demo mode without auth");
+      setIsLoading(false);
+      return;
+    }
+
     const supabase = getSupabaseClient();
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
+    // Get initial session (with error handling)
+    safeGetSession(supabase).then((currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         loadProfile(currentUser.id);
@@ -90,7 +106,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleSignOut = async () => {
     const supabase = getSupabaseClient();
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Ignore signOut errors
+    }
     setUser(null);
     setProfile(null);
   };
