@@ -8,7 +8,6 @@ import CrosswordGame from "@/components/crossword/CrosswordGame";
 import Confetti from "@/components/shared/Confetti";
 import ShareScore from "@/components/shared/ShareScore";
 import PrintPuzzle from "@/components/shared/PrintPuzzle";
-import ExplanationModal from "@/components/crossword/ExplanationModal";
 import KeyboardHelp from "@/components/crossword/KeyboardHelp";
 import { useAuth } from "@/providers/AuthProvider";
 import { generateCrosswordLayout } from "@/engine/crossword-engine";
@@ -86,9 +85,6 @@ function GameContent() {
   const [loading, setLoading] = useState(true);
   const [activeClueIndex, setActiveClueIndex] = useState<number | null>(null);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
-  const [explanationWord, setExplanationWord] = useState<Word | null>(null);
-  const [showExplanation, setShowExplanation] = useState(false);
-  const [pendingExplanationIds, setPendingExplanationIds] = useState<string[]>([]);
   const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
   const { user, profile, refreshProfile } = useAuth();
@@ -221,7 +217,6 @@ function GameContent() {
 
         if (isComplete) {
           setFoundWords((prev) => new Set(prev).add(wordId));
-          setPendingExplanationIds((prev) => [...prev, wordId]);
           const newCombo = combo + 1;
           setCombo(newCombo);
           setMaxCombo((prev) => Math.max(prev, newCombo));
@@ -426,18 +421,6 @@ function GameContent() {
       }
     }
   }, [foundWords, puzzle, elapsedTime, hintsUsed, wrongAttempts, maxCombo, difficulty, mode, saveResult]);
-
-  // Show explanations for newly found words
-  useEffect(() => {
-    if (pendingExplanationIds.length === 0 || !puzzle) return;
-    const wordId = pendingExplanationIds[0];
-    const word = puzzle.words.find((w) => w.id === wordId);
-    if (word) {
-      setExplanationWord(word);
-      setShowExplanation(true);
-    }
-    setPendingExplanationIds((prev) => prev.slice(1));
-  }, [pendingExplanationIds, puzzle]);
 
   // Auto-submit when time's up in challenge mode
   useEffect(() => {
@@ -731,13 +714,6 @@ function GameContent() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Explanation Modal */}
-      <ExplanationModal
-        word={explanationWord}
-        open={showExplanation}
-        onClose={() => setShowExplanation(false)}
-      />
 
       {/* Keyboard Help Modal */}
       <KeyboardHelp

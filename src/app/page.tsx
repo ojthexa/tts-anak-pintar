@@ -41,10 +41,9 @@ export default function LandingPage() {
               </motion.div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight clay-text mb-6">
-                TTS{" "}
-                <span className="bg-gradient-to-r from-[#a8e6cf] via-[#d4c5f9] to-[#f8b4c8] bg-clip-text text-transparent">
-                  Anak Pintar
-                </span>
+                TTS{" "}<span className="bg-gradient-to-r from-emerald-600 via-violet-600 to-rose-600 dark:from-emerald-400 dark:via-violet-400 dark:to-rose-400 bg-clip-text text-transparent">
+                    Anak Pintar
+                  </span>
               </h1>
 
               <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
