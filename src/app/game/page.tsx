@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,7 +29,36 @@ const CHALLENGE_TIME_LIMITS: Record<Difficulty, number> = {
   hard: 480,
 };
 
+/**
+ * Game page wrapper with Suspense boundary for useSearchParams()
+ * Required by Next.js to avoid static generation errors
+ */
 export default function GamePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="text-6xl mb-4"
+          >
+            🧩
+          </motion.div>
+          <p className="clay-text font-bold">Memuat Game...</p>
+        </div>
+      </div>
+    }>
+      <GameContent />
+    </Suspense>
+  );
+}
+
+/**
+ * Game content component that uses useSearchParams()
+ * Must be wrapped in Suspense for static generation
+ */
+function GameContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const mode = ((searchParams?.get("mode") as GameMode) || "random") as GameMode;
