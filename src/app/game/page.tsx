@@ -541,7 +541,7 @@ function GameContent() {
       </div>
 
       {/* Game Grid & Clues */}
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-4">
+      <div className="max-w-5xl mx-auto grid lg:grid-cols-3 gap-4">
         {/* Crossword Grid */}
         <div className="lg:col-span-2">
           <CrosswordGame
@@ -833,7 +833,8 @@ function CluesPanel({
 }
 
 /**
- * Get next active cell
+ * Get next cell within the current word, following its direction.
+ * If at the end of the word, fall back to simple grid navigation.
  */
 function getNextCell(
   puzzle: CrosswordGrid,
@@ -841,11 +842,37 @@ function getNextCell(
   col: number,
   direction: "horizontal" | "vertical"
 ): { row: number; col: number } | null {
+  // Find the word that contains this cell and matches the current direction
+  const word = puzzle.words.find((w) => {
+    if (w.direction !== direction) return false;
+    const { startRow, startCol, answer } = w;
+    if (direction === "horizontal") {
+      return row === startRow && col >= startCol && col < startCol + answer.length;
+    } else {
+      return col === startCol && row >= startRow && row < startRow + answer.length;
+    }
+  });
+
+  // Move within the word if we found one
+  if (word) {
+    if (direction === "horizontal") {
+      const cellIndex = col - word.startCol;
+      if (cellIndex + 1 < word.answer.length) {
+        return { row, col: col + 1 };
+      }
+    } else {
+      const cellIndex = row - word.startRow;
+      if (cellIndex + 1 < word.answer.length) {
+        return { row: row + 1, col };
+      }
+    }
+  }
+
+  // Fallback: simple grid navigation
   if (direction === "horizontal") {
     for (let c = col + 1; c < puzzle.cols; c++) {
       if (!puzzle.cells[row][c].isBlocked) return { row, col: c };
     }
-    // Wrap to next row
     for (let r = row + 1; r < puzzle.rows; r++) {
       for (let c = 0; c < puzzle.cols; c++) {
         if (!puzzle.cells[r][c].isBlocked) return { row: r, col: c };
@@ -855,7 +882,6 @@ function getNextCell(
     for (let r = row + 1; r < puzzle.rows; r++) {
       if (!puzzle.cells[r][col].isBlocked) return { row: r, col };
     }
-    // Wrap to next column
     for (let c = col + 1; c < puzzle.cols; c++) {
       for (let r = 0; r < puzzle.rows; r++) {
         if (!puzzle.cells[r][c].isBlocked) return { row: r, col: c };

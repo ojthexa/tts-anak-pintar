@@ -46,7 +46,7 @@ export default function LandingPage() {
                   </span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-lg sm:text-xl text-gray-800 dark:text-gray-200 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
                 Belajar sambil bermain Teka-Teki Silang interaktif!
                 Cocok untuk siswa SD kelas 1-6 dengan berbagai mata pelajaran seru.
               </p>
@@ -55,7 +55,7 @@ export default function LandingPage() {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                   <Link
                     href="/play"
-                    className="clay-lg px-8 py-4 text-lg font-bold clay-text flex items-center gap-2 transition-shadow duration-200 hover:shadow-xl"
+                    className="clay-lg px-8 py-4 text-lg font-bold clay-text flex items-center gap-2 transition-shadow duration-200 hover:shadow-xl border border-white/40"
                   >
                     <motion.span
                       animate={{ rotate: [0, -10, 10, 0] }}
@@ -69,7 +69,7 @@ export default function LandingPage() {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                   <Link
                     href="/register"
-                    className="clay-lg px-8 py-4 text-lg font-bold clay-text flex items-center gap-2 bg-gradient-to-br from-[#a8e6cf]/20 to-[#d4c5f9]/20 transition-shadow duration-200 hover:shadow-xl"
+                    className="clay-lg px-8 py-4 text-lg font-bold clay-text flex items-center gap-2 bg-gradient-to-br from-[#a8e6cf]/20 to-[#d4c5f9]/20 transition-shadow duration-200 hover:shadow-xl border border-white/40"
                   >
                     <span>🚀</span>
                     Daftar Gratis

@@ -73,8 +73,8 @@ export async function generatePuzzleContent(
  */
 export function generateSamplePuzzle(): AIGenerateResponse {
   return {
-    title: "Rukun Islam",
-    theme: "5 Rukun Islam",
+    title: "Rukun Iman & Islam",
+    theme: "6 Rukun Iman & 5 Rukun Islam",
     words: [
       {
         answer: "SYAHADAT",
@@ -95,21 +95,56 @@ export function generateSamplePuzzle(): AIGenerateResponse {
         clue: "Mengeluarkan sebagian harta yang wajib diberikan kepada yang berhak",
         explanation: "Zakat adalah rukun Islam keempat, membersihkan harta dengan memberikannya kepada fakir miskin dan yang berhak",
         direction: "horizontal",
-        start: [2, 0],
+        start: [6, 0],
       },
       {
         answer: "PUASA",
         clue: "Menahan diri dari makan dan minum dari terbit fajar hingga terbenam matahari",
         explanation: "Puasa di bulan Ramadan adalah rukun Islam keempat yang melatih kesabaran dan ketaqwaan",
         direction: "vertical",
-        start: [0, 4],
+        start: [0, 6],
       },
       {
         answer: "HAJI",
         clue: "Ibadah ke Baitullah di Mekkah yang dilakukan sekali seumur hidup bagi yang mampu",
         explanation: "Haji adalah rukun Islam kelima, berkunjung ke Ka'bah di Mekkah untuk melaksanakan ibadah tertentu",
         direction: "horizontal",
-        start: [4, 0],
+        start: [10, 0],
+      },
+      {
+        answer: "IMALLAH",
+        clue: "Rukun iman pertama, percaya kepada ...",
+        explanation: "Iman kepada Allah adalah keyakinan bahwa Allah adalah Tuhan Yang Maha Esa, pencipta alam semesta",
+        direction: "vertical",
+        start: [0, 9],
+      },
+      {
+        answer: "MALAIKAT",
+        clue: "Makhluk Allah yang diciptakan dari cahaya, selalu taat beribadah",
+        explanation: "Malaikat adalah makhluk gaib yang diciptakan Allah dari cahaya, tidak pernah durhaka dan selalu bertasbih",
+        direction: "horizontal",
+        start: [3, 6],
+      },
+      {
+        answer: "JIBRIL",
+        clue: "Malaikat yang bertugas menyampaikan wahyu",
+        explanation: "Malaikat Jibril adalah penghulu para malaikat yang bertugas menyampaikan wahyu dari Allah kepada para nabi",
+        direction: "vertical",
+        start: [3, 6],
+      },
+      {
+        answer: "WUDHU",
+        clue: "Bersuci dengan air sebelum melaksanakan shalat",
+        explanation: "Wudhu adalah cara bersuci dari hadas kecil dengan membasuh anggota tubuh tertentu menggunakan air suci",
+        direction: "horizontal",
+        start: [8, 4],
+      },
+      {
+        answer: "MASJID",
+        clue: "Tempat ibadah umat Islam",
+        explanation: "Masjid adalah tempat suci bagi umat Islam untuk melaksanakan shalat berjamaah dan kegiatan keagamaan lainnya",
+        direction: "vertical",
+        start: [5, 8],
       },
     ],
     sourceMetadata: [
@@ -118,6 +153,11 @@ export function generateSamplePuzzle(): AIGenerateResponse {
       { word: "ZAKAT", type: "fiqh", reference: "QS. At-Taubah: 103" },
       { word: "PUASA", type: "fiqh", reference: "QS. Al-Baqarah: 183" },
       { word: "HAJI", type: "fiqh", reference: "QS. Ali Imran: 97" },
+      { word: "IMALLAH", type: "quran", reference: "QS. Al-Ikhlas" },
+      { word: "MALAIKAT", type: "quran", reference: "QS. Al-Fatir: 1" },
+      { word: "JIBRIL", type: "quran", reference: "QS. Al-Baqarah: 97" },
+      { word: "WUDHU", type: "fiqh", reference: "QS. Al-Maidah: 6" },
+      { word: "MASJID", type: "general", reference: "QS. Al-Jin: 18" },
     ],
   };
 }

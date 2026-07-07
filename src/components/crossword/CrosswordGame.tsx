@@ -33,7 +33,7 @@ export default function CrosswordGame({
         className="grid gap-[2px] mx-auto"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-          maxWidth: `${cols * 44}px`,
+          maxWidth: `${cols * 34}px`,
         }}
       >
         {cells.flat().map((cell, index) => {
@@ -71,7 +71,7 @@ export default function CrosswordGame({
                   onClick={() => onCellClick(row, col)}
                   className={cn(
                     "aspect-square w-full flex items-center justify-center",
-                    "text-sm sm:text-base font-bold",
+                    "text-xs sm:text-sm font-bold",
                     "rounded-sm transition-all duration-150",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a8e6cf]",
                     "select-none",
@@ -88,13 +88,13 @@ export default function CrosswordGame({
                       : "bg-white dark:bg-gray-700 clay-pressed"
                   )}
                   style={{
-                    minWidth: "36px",
-                    minHeight: "36px",
+                    minWidth: "28px",
+                    minHeight: "28px",
                   }}
                 >
-                  <span className="relative z-10">{userLetter || ""}</span>
+                  <span className="relative z-10 text-[11px]">{userLetter || ""}</span>
                   {cell.number && (
-                    <span className="absolute top-0 left-0.5 text-[9px] font-bold text-gray-400 dark:text-gray-500 leading-none pointer-events-none select-none">
+                    <span className="absolute top-0 left-0.5 text-[7px] font-bold text-gray-400 dark:text-gray-500 leading-none pointer-events-none select-none">
                       {cell.number}
                     </span>
                   )}
