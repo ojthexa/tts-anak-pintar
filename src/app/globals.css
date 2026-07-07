@@ -13,18 +13,18 @@
   --color-clay-sky: #c7ecee;
   --color-clay-sunshine: #ffeba7;
 
-  /* Deep shadows for claymorphism */
-  --color-clay-shadow: rgba(163, 177, 198, 0.4);
-  --color-clay-highlight: rgba(255, 255, 255, 0.8);
+  /* Subtle shadows for claymorphism — reduced opacity for softer look */
+  --color-clay-shadow: rgba(163, 177, 198, 0.25);
+  --color-clay-highlight: rgba(255, 255, 255, 0.9);
 
   /* Font */
   --font-sans: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
   /* Border radius */
-  --radius-clay: 20px;
-  --radius-clay-sm: 12px;
-  --radius-clay-lg: 28px;
-  --radius-clay-xl: 36px;
+  --radius-clay: 16px;
+  --radius-clay-sm: 10px;
+  --radius-clay-lg: 24px;
+  --radius-clay-xl: 32px;
 
   /* Animations */
   --animate-float: float 3s ease-in-out infinite;
@@ -69,49 +69,51 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Claymorphism utility classes */
+/* ===== Claymorphism Utility Classes ===== */
+
+/* Light mode - softened shadows, cleaner look */
 .clay {
-  background: linear-gradient(145deg, #ffffff, #e6e9f0);
+  background: linear-gradient(145deg, #ffffff, #eceef3);
   box-shadow:
-    8px 8px 16px var(--color-clay-shadow),
-    -8px -8px 16px var(--color-clay-highlight);
+    6px 6px 14px var(--color-clay-shadow),
+    -6px -6px 14px var(--color-clay-highlight);
   border-radius: var(--radius-clay);
 }
 
 .clay-sm {
-  background: linear-gradient(145deg, #ffffff, #e6e9f0);
+  background: linear-gradient(145deg, #ffffff, #eceef3);
   box-shadow:
-    4px 4px 8px var(--color-clay-shadow),
-    -4px -4px 8px var(--color-clay-highlight);
+    3px 3px 6px var(--color-clay-shadow),
+    -3px -3px 6px var(--color-clay-highlight);
   border-radius: var(--radius-clay-sm);
 }
 
 .clay-lg {
-  background: linear-gradient(145deg, #ffffff, #e6e9f0);
+  background: linear-gradient(145deg, #ffffff, #eceef3);
   box-shadow:
-    12px 12px 24px var(--color-clay-shadow),
-    -12px -12px 24px var(--color-clay-highlight);
+    8px 8px 20px var(--color-clay-shadow),
+    -8px -8px 20px var(--color-clay-highlight);
   border-radius: var(--radius-clay-lg);
 }
 
 .clay-inset {
-  background: #e6e9f0;
+  background: #eceef3;
   box-shadow:
-    inset 4px 4px 8px var(--color-clay-shadow),
-    inset -4px -4px 8px var(--color-clay-highlight);
+    inset 3px 3px 6px var(--color-clay-shadow),
+    inset -3px -3px 6px var(--color-clay-highlight);
   border-radius: var(--radius-clay-sm);
 }
 
 .clay-colored {
-  background: linear-gradient(145deg, #ffffff, #d4e0f0);
+  background: linear-gradient(145deg, #ffffff, #dbe1ed);
   box-shadow:
-    6px 6px 12px var(--color-clay-shadow),
-    -6px -6px 12px var(--color-clay-highlight);
+    4px 4px 10px var(--color-clay-shadow),
+    -4px -4px 10px var(--color-clay-highlight);
   border-radius: var(--radius-clay);
 }
 
 .clay-pressed {
-  background: linear-gradient(145deg, #e6e9f0, #ffffff);
+  background: linear-gradient(145deg, #eceef3, #ffffff);
   box-shadow:
     inset 2px 2px 4px var(--color-clay-shadow),
     inset -2px -2px 4px var(--color-clay-highlight);
@@ -119,54 +121,67 @@
 }
 
 .clay-text {
-  color: #4a5568;
-  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  color: #2d3748;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 
-/* Dark mode overrides for claymorphism */
+/* Dark mode — lighter text for better contrast, softer shadows */
 .dark .clay {
-  background: linear-gradient(145deg, #2d3748, #1a202c);
+  background: linear-gradient(145deg, #2a3346, #1a2030);
   box-shadow:
-    8px 8px 16px rgba(0, 0, 0, 0.4),
-    -8px -8px 16px rgba(255, 255, 255, 0.05);
+    6px 6px 14px rgba(0, 0, 0, 0.3),
+    -6px -6px 14px rgba(255, 255, 255, 0.03);
 }
 
 .dark .clay-sm {
-  background: linear-gradient(145deg, #2d3748, #1a202c);
+  background: linear-gradient(145deg, #2a3346, #1a2030);
   box-shadow:
-    4px 4px 8px rgba(0, 0, 0, 0.4),
-    -4px -4px 8px rgba(255, 255, 255, 0.05);
+    3px 3px 6px rgba(0, 0, 0, 0.3),
+    -3px -3px 6px rgba(255, 255, 255, 0.03);
 }
 
 .dark .clay-lg {
-  background: linear-gradient(145deg, #2d3748, #1a202c);
+  background: linear-gradient(145deg, #2a3346, #1a2030);
   box-shadow:
-    12px 12px 24px rgba(0, 0, 0, 0.4),
-    -12px -12px 24px rgba(255, 255, 255, 0.05);
+    8px 8px 20px rgba(0, 0, 0, 0.3),
+    -8px -8px 20px rgba(255, 255, 255, 0.03);
 }
 
 .dark .clay-inset {
-  background: #1a202c;
+  background: #1a2030;
   box-shadow:
-    inset 4px 4px 8px rgba(0, 0, 0, 0.4),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+    inset 3px 3px 6px rgba(0, 0, 0, 0.3),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.03);
+}
+
+.dark .clay-text {
+  color: #e2e8f0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 /* Base styles */
 body {
   font-family: var(--font-sans);
   background-color: #f0f2f5;
+  color: #1a202c;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .dark body {
   background-color: #0f1419;
+  color: #e2e8f0;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -174,19 +189,18 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c4c9d4;
-  border-radius: 10px;
+  background: #cbd5e1;
+  border-radius: 99px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #4a5568;
+  background: #475569;
 }
 
 /* Focus styles */
 *:focus-visible {
   outline: 2px solid #a8e6cf;
   outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* Selection */
@@ -207,7 +221,7 @@ body {
   }
 }
 
-/* Print styles - optimized for crossword */
+/* Print styles */
 @media print {
   @page {
     margin: 1cm;
