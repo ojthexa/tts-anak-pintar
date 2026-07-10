@@ -46,7 +46,7 @@ export default function LandingPage() {
                   </span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-gray-800 dark:text-gray-200 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
+              <p className="text-lg sm:text-xl text-gray-900 dark:text-gray-100 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed font-semibold">
                 Belajar sambil bermain Teka-Teki Silang interaktif!
                 Cocok untuk siswa SD kelas 1-6 dengan berbagai mata pelajaran seru.
               </p>

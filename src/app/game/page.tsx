@@ -17,6 +17,7 @@ import { addReward } from "@/services/supabase/profiles";
 import { formatTime } from "@/lib/utils";
 import { isSoundEnabled, playCorrectSound, playWrongSound, playVictorySound, playComboSound } from "@/services/game/audio";
 import { SUBJECTS, DIFFICULTIES } from "@/lib/constants";
+import { PREBUILT_PUZZLES } from "@/data/puzzles";
 import type { CrosswordGrid, Word } from "@/types/crossword";
 import type { GameMode, Subject, Difficulty, GameResult } from "@/types/game";
 import type { AIGenerateResponse } from "@/types/ai";
@@ -64,6 +65,7 @@ function GameContent() {
   const subject = ((searchParams?.get("subject") as Subject) || "islam") as Subject;
   const grade = parseInt(searchParams?.get("grade") || "1");
   const difficulty = ((searchParams?.get("difficulty") as Difficulty) || "easy") as Difficulty;
+  const puzzleId = searchParams?.get("puzzleId") || null;
 
   const [puzzle, setPuzzle] = useState<CrosswordGrid | null>(null);
   const [userGrid, setUserGrid] = useState<string[][]>([]);
@@ -123,7 +125,30 @@ function GameContent() {
           console.warn("AI generation failed, using sample data");
         }
 
-        const puzzleData = aiData || (await import("@/services/ai/openai")).generateSamplePuzzle();
+        // If a specific puzzle was selected from the pre-built list, use it
+        let puzzleData = null;
+        if (puzzleId) {
+          const prebuilt = PREBUILT_PUZZLES.find((p) => p.id === puzzleId);
+          if (prebuilt) {
+            puzzleData = {
+              title: prebuilt.title,
+              theme: prebuilt.theme,
+              words: prebuilt.words.map((w) => ({
+                answer: w.answer,
+                clue: w.clue,
+                explanation: w.explanation,
+                direction: "horizontal" as const,
+                start: [0, 0] as [number, number],
+              })),
+              sourceMetadata: [],
+            };
+          }
+        }
+
+        // Fallback to AI generation or sample
+        if (!puzzleData) {
+          puzzleData = aiData || (await import("@/services/ai/openai")).generateSamplePuzzle();
+        }
 
         const grid = generateCrosswordLayout(
           puzzleData.words.map((w) => ({
@@ -161,7 +186,7 @@ function GameContent() {
       }
     };
     initPuzzle();
-  }, [subject, grade, difficulty, mode]);
+  }, [subject, grade, difficulty, mode, puzzleId]);
 
   // Initialize start time on client (avoid hydration mismatch)
   useEffect(() => {

@@ -262,35 +262,32 @@ function isValidPlacement(
     }
   }
 
-  // Check adjacency (no adjacent parallel words without intersection)
+  // Check adjacency: non-intersecting words must NOT touch each other
   for (let i = 0; i < word.length; i++) {
     const row = direction === "horizontal" ? startRow : startRow + i;
     const col = direction === "horizontal" ? startCol + i : startCol;
-
-    if (!grid[row][col].letter) continue; // Skip empty cells
+    const cellHasLetter = !!grid[row][col].letter;
 
     if (direction === "horizontal") {
-      // Check above and below
-      if (row > 0 && grid[row - 1][col].letter) {
-        // Check if this is actually an intersection of a vertical word
-        const isIntersection = grid[row][col].letter === upperWord[i];
-        if (!isIntersection) return false;
-      }
-      if (row < gridSize - 1 && grid[row + 1][col].letter) {
-        const isIntersection = grid[row][col].letter === upperWord[i];
-        if (!isIntersection) return false;
-      }
+      // Check above — perpendicular word only allowed if this cell is an intersection
+      if (row > 0 && grid[row - 1][col].letter && !cellHasLetter) return false;
+      // Check below
+      if (row < gridSize - 1 && grid[row + 1][col].letter && !cellHasLetter) return false;
     } else {
-      // Check left and right
-      if (col > 0 && grid[row][col - 1].letter) {
-        const isIntersection = grid[row][col].letter === upperWord[i];
-        if (!isIntersection) return false;
-      }
-      if (col < gridSize - 1 && grid[row][col + 1].letter) {
-        const isIntersection = grid[row][col].letter === upperWord[i];
-        if (!isIntersection) return false;
-      }
+      // Check left — perpendicular word only allowed if this cell is an intersection
+      if (col > 0 && grid[row][col - 1].letter && !cellHasLetter) return false;
+      // Check right
+      if (col < gridSize - 1 && grid[row][col + 1].letter && !cellHasLetter) return false;
     }
+  }
+
+  // Check parallel adjacency at word start/end
+  if (direction === "horizontal") {
+    if (startCol > 0 && grid[startRow][startCol - 1].letter) return false;
+    if (startCol + word.length < gridSize && grid[startRow][startCol + word.length].letter) return false;
+  } else {
+    if (startRow > 0 && grid[startRow - 1][startCol].letter) return false;
+    if (startRow + word.length < gridSize && grid[startRow + word.length][startCol].letter) return false;
   }
 
   return true;
