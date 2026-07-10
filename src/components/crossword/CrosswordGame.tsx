@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { CrosswordGrid } from "@/types/crossword";
 
+import type { Word } from "@/types/crossword";
+
 interface CrosswordGameProps {
   puzzle: CrosswordGrid;
   userGrid: string[][];
@@ -11,6 +13,7 @@ interface CrosswordGameProps {
   currentCol: number;
   selectedDirection: "horizontal" | "vertical";
   foundWords: Set<string>;
+  activeWord: Word | null;
   onCellClick: (row: number, col: number) => void;
   onCellInput: (row: number, col: number, letter: string) => void;
 }
@@ -22,6 +25,7 @@ export default function CrosswordGame({
   currentCol,
   selectedDirection,
   foundWords,
+  activeWord,
   onCellClick,
   onCellInput,
 }: CrosswordGameProps) {
@@ -40,9 +44,25 @@ export default function CrosswordGame({
           const row = Math.floor(index / cols);
           const col = index % cols;
           const isActive = row === currentRow && col === currentCol;
-          const isHighlighted =
-            (selectedDirection === "horizontal" && row === currentRow) ||
-            (selectedDirection === "vertical" && col === currentCol);
+          // Only highlight cells WITHIN the active word, not entire row/column
+          const isHighlighted = activeWord
+            ? (() => {
+                const { startRow, startCol, direction, answer } = activeWord;
+                if (direction === "horizontal") {
+                  return (
+                    row === startRow &&
+                    col >= startCol &&
+                    col < startCol + answer.length
+                  );
+                } else {
+                  return (
+                    col === startCol &&
+                    row >= startRow &&
+                    row < startRow + answer.length
+                  );
+                }
+              })()
+            : false;
           const userLetter = userGrid[row]?.[col] || "";
           const isCorrect =
             userLetter &&

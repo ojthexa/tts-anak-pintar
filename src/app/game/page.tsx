@@ -10,7 +10,7 @@ import ShareScore from "@/components/shared/ShareScore";
 import PrintPuzzle from "@/components/shared/PrintPuzzle";
 import KeyboardHelp from "@/components/crossword/KeyboardHelp";
 import { useAuth } from "@/providers/AuthProvider";
-import { generateCrosswordLayout } from "@/engine/crossword-engine";
+import { generateCrosswordLayout, getActiveWord } from "@/engine/crossword-engine";
 import { calculateFinalScore, calculateWordScore, calculateLevel } from "@/services/game/scoring";
 import { saveGameAttempt } from "@/services/supabase/puzzles";
 import { addReward } from "@/services/supabase/profiles";
@@ -576,6 +576,7 @@ function GameContent() {
             currentCol={currentCol}
             selectedDirection={selectedDirection}
             foundWords={foundWords}
+            activeWord={getActiveWord(puzzle, currentRow, currentCol, selectedDirection)}
             onCellClick={(row, col) => {
               // Toggle direction if clicking same cell
               if (row === currentRow && col === currentCol) {
@@ -583,6 +584,33 @@ function GameContent() {
                   prev === "horizontal" ? "vertical" : "horizontal"
                 );
               } else {
+                // Auto-detect direction from cell's word membership
+                const cell = puzzle.cells[row][col];
+                if (cell.wordIds.length === 1) {
+                  // Only one word: use its direction
+                  const theWord = puzzle.words.find(
+                    (w) => cell.wordIds.includes(w.id)
+                  );
+                  if (theWord) {
+                    setSelectedDirection(theWord.direction);
+                  }
+                } else if (cell.wordIds.length > 1) {
+                  // Intersection: keep current direction if valid
+                  const hasCurrentDir = puzzle.words.some(
+                    (w) =>
+                      w.direction === selectedDirection &&
+                      cell.wordIds.includes(w.id)
+                  );
+                  if (!hasCurrentDir) {
+                    // Switch to the other available direction
+                    const otherWord = puzzle.words.find(
+                      (w) => cell.wordIds.includes(w.id)
+                    );
+                    if (otherWord) {
+                      setSelectedDirection(otherWord.direction);
+                    }
+                  }
+                }
                 setCurrentRow(row);
                 setCurrentCol(col);
               }
@@ -858,8 +886,10 @@ function CluesPanel({
 }
 
 /**
- * Get next cell within the current word, following its direction.
- * If at the end of the word, fall back to simple grid navigation.
+ * Get next cell within the current word, strictly following its direction.
+ * Only moves to the next cell in the same word. If at the end of the word,
+ * tries to find another unfinished word and jump to its start.
+ * Never jumps to a cell that belongs to a different word with a different direction.
  */
 function getNextCell(
   puzzle: CrosswordGrid,
@@ -867,7 +897,7 @@ function getNextCell(
   col: number,
   direction: "horizontal" | "vertical"
 ): { row: number; col: number } | null {
-  // Find the word that contains this cell and matches the current direction
+  // First try: find the word that contains this cell and matches the current direction
   const word = puzzle.words.find((w) => {
     if (w.direction !== direction) return false;
     const { startRow, startCol, answer } = w;
@@ -878,7 +908,7 @@ function getNextCell(
     }
   });
 
-  // Move within the word if we found one
+  // If we found a matching word, move to the next cell within it
   if (word) {
     if (direction === "horizontal") {
       const cellIndex = col - word.startCol;
@@ -891,9 +921,38 @@ function getNextCell(
         return { row: row + 1, col };
       }
     }
+    // At end of word - return null, don't jump to other words
+    return null;
   }
 
-  // Fallback: simple grid navigation
+  // Second try: this cell might belong to a word with the OPPOSITE direction.
+  // Find it and navigate within THAT word instead (respecting its direction).
+  const anyWord = puzzle.words.find((w) => {
+    const { startRow, startCol, answer } = w;
+    if (w.direction === "horizontal") {
+      return row === startRow && col >= startCol && col < startCol + answer.length;
+    } else {
+      return col === startCol && row >= startRow && row < startRow + answer.length;
+    }
+  });
+
+  if (anyWord) {
+    // Navigate within this word according to ITS direction
+    if (anyWord.direction === "horizontal") {
+      const cellIndex = col - anyWord.startCol;
+      if (cellIndex + 1 < anyWord.answer.length) {
+        return { row, col: col + 1 };
+      }
+    } else {
+      const cellIndex = row - anyWord.startRow;
+      if (cellIndex + 1 < anyWord.answer.length) {
+        return { row: row + 1, col };
+      }
+    }
+    return null;
+  }
+
+  // Last resort: grid-based navigation (only non-blocked cells)
   if (direction === "horizontal") {
     for (let c = col + 1; c < puzzle.cols; c++) {
       if (!puzzle.cells[row][c].isBlocked) return { row, col: c };
