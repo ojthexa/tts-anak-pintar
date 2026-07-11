@@ -94,9 +94,9 @@ export const PREBUILT_PUZZLES: PuzzleData[] = [
         explanation: "Haji adalah rukun Islam kelima",
       },
       {
-        answer: "IMALLAH",
+        answer: "ALLAH",
         clue: "Rukun iman pertama, percaya kepada ...",
-        explanation: "Iman kepada Allah SWT",
+        explanation: "Rukun iman pertama adalah iman kepada Allah SWT",
       },
       {
         answer: "MALAIKAT",
