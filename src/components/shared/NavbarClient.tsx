@@ -22,6 +22,9 @@ export function NavLinks() {
       <NavLink href="/play" icon="🎮" active={isActive("/play")}>
         Main
       </NavLink>
+      <NavLink href="/soal" icon="📋" active={isActive("/soal")}>
+        Soal
+      </NavLink>
       <NavLink href="/leaderboard" icon="🏆" active={isActive("/leaderboard")}>
         Peringkat
       </NavLink>
