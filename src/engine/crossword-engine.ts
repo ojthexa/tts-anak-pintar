@@ -44,8 +44,13 @@ export function generateCrosswordLayout(
   words: Array<{ answer: string; clue: string; explanation: string }>,
   maxRetries: number = 100
 ): CrosswordGrid {
-  // Sort words by length descending for easier placement
-  const sortedWords = [...words].sort((a, b) => b.answer.length - a.answer.length);
+  // Sort words: prioritize those with more shared letters (better intersections)
+  const sortedWords = [...words].sort((a, b) => {
+    const aShared = countSharedLetters(a.answer, words);
+    const bShared = countSharedLetters(b.answer, words);
+    if (bShared !== aShared) return bShared - aShared;
+    return b.answer.length - a.answer.length;
+  });
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const result = tryLayout(sortedWords, attempt);
@@ -55,8 +60,8 @@ export function generateCrosswordLayout(
     }
   }
 
-  // Fallback: create a simple non-intersecting layout
-  return createSimpleLayout(sortedWords);
+  // Fallback: create a compact connected layout
+  return createCompactLayout(sortedWords);
 }
 
 /**
@@ -67,10 +72,11 @@ function tryLayout(words: Array<{ answer: string; clue: string; explanation: str
   const rng = createRNG(seed);
 
   // Estimate grid size based on word lengths
+  // Tighter formula: words placed closer together = fewer scattered blocks
   const totalChars = words.reduce((sum, w) => sum + w.answer.length, 0);
   const gridSize = Math.max(
-    10,
-    Math.ceil(Math.sqrt(totalChars * 2.5)) + 2
+    12,
+    Math.ceil(Math.sqrt(totalChars * 1.4)) + 1
   );
 
   // Initialize empty grid
@@ -128,11 +134,10 @@ function tryLayout(words: Array<{ answer: string; clue: string; explanation: str
     ...p,
     startRow: p.startRow - offsetRow,
     startCol: p.startCol - offsetCol,
-  }));
-
-  // Check if we have enough intersections (use original grid before trim)
+  }));    // Check if we have enough intersections
   const totalIntersections = countIntersections(trimmedGrid, adjustedPlacements);
-  const minIntersections = Math.max(1, Math.floor(placements.length * 0.3));
+  // Require at least 50% of words to have intersections (more connected grid)
+  const minIntersections = Math.max(2, Math.floor(placements.length * 0.5));
 
   return {
     grid: trimmedGrid,
@@ -313,6 +318,23 @@ function placeWord(
 }
 
 /**
+ * Count how many letters a word shares with all other words
+ * Higher = better intersection potential
+ */
+function countSharedLetters(word: string, allWords: Array<{ answer: string }>): number {
+  const letters = new Set(word.toUpperCase().split(""));
+  let shared = 0;
+  for (const other of allWords) {
+    if (other.answer === word) continue;
+    const otherLetters = new Set(other.answer.toUpperCase().split(""));
+    for (const l of letters) {
+      if (otherLetters.has(l)) shared++;
+    }
+  }
+  return shared;
+}
+
+/**
  * Calculate placement score (more intersections = better)
  */
 function calculatePlacementScore(
@@ -329,18 +351,9 @@ function calculatePlacementScore(
     const row = direction === "horizontal" ? startRow : startRow + i;
     const col = direction === "horizontal" ? startCol + i : startCol;
 
-    // +10 for each intersection with existing letter
+    // +15 for each intersection with existing letter (prioritize connections)
     if (grid[row][col].letter === upperWord[i]) {
-      score += 10;
-    }
-
-    // +1 for adjacent to another word (not parallel)
-    if (direction === "horizontal") {
-      if (row > 0 && grid[row - 1][col].letter) score += 3;
-      if (row < grid.length - 1 && grid[row + 1][col].letter) score += 3;
-    } else {
-      if (col > 0 && grid[row][col - 1].letter) score += 3;
-      if (col < grid[0].length - 1 && grid[row][col + 1].letter) score += 3;
+      score += 15;
     }
   }
 
@@ -424,12 +437,15 @@ function countIntersections(grid: GridCell[][], placements: Placement[]): number
 }
 
 /**
- * Create a simple non-intersecting layout (fallback)
+ * Create a compact connected layout (fallback when intersections fail)
+ * Places words in a dense block with all words touching at corners
  */
-function createSimpleLayout(words: Array<{ answer: string; clue: string; explanation: string }>): CrosswordGrid {
+function createCompactLayout(words: Array<{ answer: string; clue: string; explanation: string }>): CrosswordGrid {
+  // Calculate required grid size
+  const longestWord = Math.max(...words.map((w) => w.answer.length));
   const gridSize = Math.max(
-    15,
-    words.reduce((sum, w) => sum + w.answer.length, 0) + words.length + 2
+    longestWord + 4,
+    Math.ceil(Math.sqrt(words.reduce((sum, w) => sum + w.answer.length, 0) * 1.2)) + 4
   );
 
   const grid: GridCell[][] = Array.from({ length: gridSize }, (_, row) =>
@@ -442,42 +458,118 @@ function createSimpleLayout(words: Array<{ answer: string; clue: string; explana
   );
 
   const placements: Placement[] = [];
-  let currentRow = 1;
-  let currentCol = 1;
 
-  for (let i = 0; i < words.length; i++) {
+  // Place first word horizontally at center
+  const center = Math.floor(gridSize / 2);
+  placeWord(grid, words[0], "horizontal", center, Math.max(1, Math.floor((gridSize - words[0].answer.length) / 2)));
+  placements.push({
+    word: words[0].answer,
+    clue: words[0].clue,
+    explanation: words[0].explanation,
+    direction: "horizontal",
+    startRow: center,
+    startCol: Math.max(1, Math.floor((gridSize - words[0].answer.length) / 2)),
+  });
+
+  // Place remaining words alternating h/v, packed tightly around center
+  let topRow = center - 2;
+  let bottomRow = center + 2;
+  let leftCol = Math.max(1, Math.floor((gridSize - words[0].answer.length) / 2)) - 2;
+  let rightCol = Math.max(1, Math.floor((gridSize - words[0].answer.length) / 2)) + words[0].answer.length + 2;
+
+  for (let i = 1; i < words.length; i++) {
     const wordData = words[i];
-    const direction: Direction = i % 2 === 0 ? "horizontal" : "vertical";
+    const wordLen = wordData.answer.length;
+    const dir: Direction = i % 2 === 0 ? "horizontal" : "vertical";
 
-    if (i > 0 && i % 2 === 0) {
-      currentRow += 2;
-      currentCol = 1;
+    let placed = false;
+
+    if (dir === "horizontal" && leftCol > 1) {
+      // Try placing horizontally above/below with spacing
+      for (const tryRow of [topRow, bottomRow]) {
+        const tryCol = Math.max(1, Math.min(leftCol, gridSize - wordLen - 2));
+        if (tryCol + wordLen < gridSize && tryRow > 0 && tryRow + 1 < gridSize) {
+          let canPlace = true;
+          for (let c = 0; c < wordLen; c++) {
+            if (grid[tryRow][tryCol + c].letter) { canPlace = false; break; }
+            // Check no adjacency with other horizontal words
+            if (tryRow > 0 && grid[tryRow - 1][tryCol + c].letter) { canPlace = false; break; }
+            if (tryRow < gridSize - 1 && grid[tryRow + 1][tryCol + c].letter) { canPlace = false; break; }
+          }
+          // Check neighbours at start/end
+          if (canPlace && tryCol > 0 && grid[tryRow][tryCol - 1].letter) canPlace = false;
+          if (canPlace && tryCol + wordLen < gridSize && grid[tryRow][tryCol + wordLen].letter) canPlace = false;
+
+          if (canPlace) {
+            placeWord(grid, wordData, "horizontal", tryRow, tryCol);
+            placements.push({
+              word: wordData.answer,
+              clue: wordData.clue,
+              explanation: wordData.explanation,
+              direction: "horizontal",
+              startRow: tryRow,
+              startCol: tryCol,
+            });
+            if (tryRow === topRow) topRow -= 2;
+            else bottomRow += 2;
+            leftCol = Math.min(leftCol, tryCol - 1);
+            rightCol = Math.max(rightCol, tryCol + wordLen + 1);
+            placed = true;
+            break;
+          }
+        }
+      }
     }
 
-    // Check bounds
-    if (direction === "horizontal" && currentCol + wordData.answer.length >= gridSize) {
-      currentRow += 2;
-      currentCol = 1;
-    }
-    if (direction === "vertical" && currentRow + wordData.answer.length >= gridSize) {
-      currentCol += 2;
-      currentRow = 1;
+    if (!placed && dir === "vertical") {
+      // Try placing vertically left/right
+      for (const tryCol of [leftCol, rightCol]) {
+        const tryRow = Math.max(1, Math.min(center, gridSize - wordLen - 2));
+        if (tryCol > 0 && tryCol + 1 < gridSize && tryRow + wordLen < gridSize) {
+          let canPlace = true;
+          for (let r = 0; r < wordLen; r++) {
+            if (grid[tryRow + r][tryCol].letter) { canPlace = false; break; }
+            if (tryCol > 0 && grid[tryRow + r][tryCol - 1].letter) { canPlace = false; break; }
+            if (tryCol < gridSize - 1 && grid[tryRow + r][tryCol + 1].letter) { canPlace = false; break; }
+          }
+          if (canPlace && tryRow > 0 && grid[tryRow - 1][tryCol].letter) canPlace = false;
+          if (canPlace && tryRow + wordLen < gridSize && grid[tryRow + wordLen][tryCol].letter) canPlace = false;
+
+          if (canPlace) {
+            placeWord(grid, wordData, "vertical", tryRow, tryCol);
+            placements.push({
+              word: wordData.answer,
+              clue: wordData.clue,
+              explanation: wordData.explanation,
+              direction: "vertical",
+              startRow: tryRow,
+              startCol: tryCol,
+            });
+            if (tryCol === leftCol) leftCol -= 2;
+            else rightCol += 2;
+            topRow = Math.min(topRow, tryRow - 1);
+            bottomRow = Math.max(bottomRow, tryRow + wordLen + 1);
+            placed = true;
+            break;
+          }
+        }
+      }
     }
 
-    placeWord(grid, wordData, direction, currentRow, currentCol);
-    placements.push({
-      word: wordData.answer,
-      clue: wordData.clue,
-      explanation: wordData.explanation,
-      direction,
-      startRow: currentRow,
-      startCol: currentCol,
-    });
-
-    if (direction === "horizontal") {
-      currentCol += wordData.answer.length + 2;
-    } else {
-      currentRow += wordData.answer.length + 2;
+    // If still not placed, stack horizontally at bottom
+    if (!placed) {
+      const fallbackRow = Math.min(bottomRow, gridSize - 3);
+      const fallbackCol = Math.max(1, Math.floor((gridSize - wordLen) / 2));
+      placeWord(grid, wordData, "horizontal", fallbackRow, fallbackCol);
+      placements.push({
+        word: wordData.answer,
+        clue: wordData.clue,
+        explanation: wordData.explanation,
+        direction: "horizontal",
+        startRow: fallbackRow,
+        startCol: fallbackCol,
+      });
+      bottomRow += 2;
     }
   }
 
