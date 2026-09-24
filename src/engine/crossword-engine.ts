@@ -764,18 +764,37 @@ function createStackedLayout(words: Array<{ answer: string; clue: string; explan
  * Convert internal format to CrosswordGrid
  */
 function convertToCrosswordGrid(result: LayoutResult): CrosswordGrid {
-  const { grid, placements } = result;
+  const { grid } = result;
   const rows = grid.length;
   const cols = grid[0]?.length || 0;
 
+  // Standard crossword numbering: reading order — top row first, then left to
+  // right — so the smallest number always sits at the top-left of the grid.
+  // The clue lists use "word index + 1", so sorting here keeps the clue
+  // numbers and the cell numbers in sync.
+  const placements = [...result.placements].sort(
+    (a, b) =>
+      a.startRow - b.startRow ||
+      a.startCol - b.startCol ||
+      (a.direction === b.direction
+        ? 0
+        : a.direction === "horizontal"
+        ? -1
+        : 1)
+  );
+
   // Create cells with numbering
   const cells: Cell[][] = [];
-  const numberedCells = new Set<string>();
 
+  // Number every distinct start cell in reading order (1, 2, 3, ...). Two
+  // words starting on the same cell share one number like printed
+  // crosswords, so the numbers visible on the grid are always sequential and
+  // the smallest one sits at the top-left.
+  const startCellNumber = new Map<string, number>();
   for (const placement of placements) {
     const key = `${placement.startRow},${placement.startCol}`;
-    if (!numberedCells.has(key)) {
-      numberedCells.add(key);
+    if (!startCellNumber.has(key)) {
+      startCellNumber.set(key, startCellNumber.size + 1);
     }
   }
 
@@ -784,7 +803,6 @@ function convertToCrosswordGrid(result: LayoutResult): CrosswordGrid {
     for (let c = 0; c < cols; c++) {
       const gridCell = grid[r]?.[c];
       const key = `${r},${c}`;
-      const isNumbered = numberedCells.has(key);
       const wordIds = placements
         .map((p, pi) => ({ p, pi }))
         .filter(({ p }) => {
@@ -805,7 +823,7 @@ function convertToCrosswordGrid(result: LayoutResult): CrosswordGrid {
         isBlocked: !gridCell?.letter,
         isActive: !!gridCell?.letter,
         wordIds,
-        number: isNumbered ? getCellNumber(placements, r, c) : undefined,
+        number: startCellNumber.get(key),
       });
     }
     cells.push(row);
@@ -819,6 +837,7 @@ function convertToCrosswordGrid(result: LayoutResult): CrosswordGrid {
     direction: p.direction,
     startRow: p.startRow,
     startCol: p.startCol,
+    number: startCellNumber.get(`${p.startRow},${p.startCol}`) ?? index + 1,
   }));
 
   return {
@@ -829,14 +848,6 @@ function convertToCrosswordGrid(result: LayoutResult): CrosswordGrid {
     title: "TTS Puzzle",
     theme: "General",
   };
-}
-
-/**
- * Get cell number for a position
- */
-function getCellNumber(placements: Placement[], row: number, col: number): number {
-  const idx = placements.findIndex((p) => p.startRow === row && p.startCol === col);
-  return idx + 1;
 }
 
 /**

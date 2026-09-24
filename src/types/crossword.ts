@@ -8,6 +8,8 @@ export interface Word {
   direction: Direction;
   startRow: number;
   startCol: number;
+  /** Clue number in reading order (1 = top-left start cell) */
+  number: number;
   /** Source metadata for Islamic content */
   sourceMetadata?: {
     type: "quran" | "hadith_shahih" | "sirah" | "fiqh" | "arabic_vocab" | "general";

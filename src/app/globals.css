@@ -137,9 +137,10 @@
 }
 
 /* Answer cell — always a square with softly rounded corners, never a
-   full circle/pill when empty */
+   full circle/pill. Empty cells stay pure white in BOTH themes so kids can
+   see clearly what needs to be filled. */
 .clay-cell {
-  background: linear-gradient(145deg, #ffffff, #eceef3);
+  background: #ffffff;
   box-shadow:
     inset 2px 2px 4px var(--color-clay-shadow),
     inset -2px -2px 4px var(--color-clay-highlight);
@@ -147,10 +148,10 @@
 }
 
 .dark .clay-cell {
-  background: #374151;
+  background: #ffffff;
   box-shadow:
-    inset 2px 2px 4px rgba(0, 0, 0, 0.35),
-    inset -2px -2px 4px rgba(255, 255, 255, 0.04);
+    inset 2px 2px 4px rgba(163, 177, 198, 0.35),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.9);
 }
 
 /* Flat clay surface — no raised shadow (e.g. navbar logo) */

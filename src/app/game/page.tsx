@@ -844,7 +844,7 @@ function CluesPanel({
                   : "hover:clay-pressed clay-text"
               }`}
             >
-              <span className="font-bold mr-2">{word.index + 1}.</span>
+              <span className="font-bold mr-2">{word.number}.</span>
               {word.clue}
               {foundWords.has(word.id) && (
                 <span className="ml-2 text-green-500"> ✓</span>
@@ -872,7 +872,7 @@ function CluesPanel({
                   : "hover:clay-pressed clay-text"
               }`}
             >
-              <span className="font-bold mr-2">{word.index + 1}.</span>
+              <span className="font-bold mr-2">{word.number}.</span>
               {word.clue}
               {foundWords.has(word.id) && (
                 <span className="ml-2 text-green-500"> ✓</span>

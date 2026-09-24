@@ -40,7 +40,7 @@ const CELL_VARIANT_CLASSES: Record<CellVariant, string> = {
   correct:
     "bg-gradient-to-br from-[#a8e6cf]/80 to-[#7ed5b0]/80 text-green-900",
   wrong: "bg-gradient-to-br from-[#ffd3b6] to-[#ffb3a7] text-gray-900",
-  empty: "clay-cell",
+  empty: "clay-cell text-gray-900",
 };
 
 export default function CrosswordGame({
