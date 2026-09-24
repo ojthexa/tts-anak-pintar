@@ -57,9 +57,9 @@ export default function CrosswordGame({
   const { cells, rows, cols } = puzzle;
 
   return (
-    <div className="clay-lg p-4 sm:p-6 overflow-x-auto">
+    <div className="clay-lg p-3 sm:p-6 overflow-x-auto">
       <div
-        className="grid gap-[2px] mx-auto"
+        className="grid gap-1 sm:gap-[2px] mx-auto"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           maxWidth: `${cols * 34}px`,
@@ -123,7 +123,7 @@ export default function CrosswordGame({
               )}
             >
               {cell.isBlocked ? (
-                <div className="aspect-square bg-gray-200 dark:bg-gray-800 rounded-sm" />
+                <div className="aspect-square bg-[#dde2ec] dark:bg-[#39415a] rounded-sm" />
               ) : (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
@@ -133,13 +133,13 @@ export default function CrosswordGame({
                     "text-xs sm:text-sm font-bold",
                     "rounded-sm transition-all duration-150",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a8e6cf]",
-                    "select-none",
+                    "select-none touch-manipulation",
+                    // On mobile the board shrinks to fit the screen instead of
+                    // overflowing behind the dark panel edges; on larger
+                    // screens cells keep a comfortable 28px minimum.
+                    "min-h-0 min-w-0 sm:min-h-7 sm:min-w-7",
                     CELL_VARIANT_CLASSES[variant]
                   )}
-                  style={{
-                    minWidth: "28px",
-                    minHeight: "28px",
-                  }}
                 >
                   <span className="relative z-10 text-[11px]">{userLetter || ""}</span>
                   {cell.number && (

@@ -32,7 +32,7 @@ export function NavLinks() {
         Dashboard
       </NavLink>
       {isAuthenticated ? (
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-0.5 sm:gap-1.5">
           <NavLink href="/profile" icon={profile?.avatarUrl ? undefined : "👤"} active={isActive("/profile")}>
             {profile?.displayName || "Profil"}
           </NavLink>
@@ -41,11 +41,12 @@ export function NavLinks() {
               await signOut();
               window.location.href = "/";
             }}
-            className="clay-sm px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 transition-transform duration-200"
+            className="group relative clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap"
             title="Keluar"
             aria-label="Keluar"
           >
-            🚪
+            <span aria-hidden="true">🚪</span>
+            <MenuBubble label="Keluar" />
           </button>
         </div>
       ) : (
@@ -68,15 +69,34 @@ function NavLink({
   active?: boolean;
   children: React.ReactNode;
 }) {
+  const label = typeof children === "string" ? children : "Menu";
+
   return (
     <Link
       href={href}
-      className={`clay-sm px-4 py-2 flex items-center gap-1.5 text-sm font-semibold clay-text hover:scale-105 transition-transform duration-200 ${active ? "ring-2 ring-[#a8e6cf]" : ""}`}
+      className={`group relative clay-sm px-2.5 sm:px-4 py-2 flex items-center gap-1.5 text-sm font-semibold clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap shrink-0 ${active ? "ring-2 ring-[#a8e6cf]" : ""}`}
       aria-current={active ? "page" : undefined}
+      aria-label={label}
     >
-      {icon && <span>{icon}</span>}
+      {icon && <span aria-hidden="true">{icon}</span>}
       <span className="hidden sm:inline font-bold">{children}</span>
+      <MenuBubble label={label} />
     </Link>
+  );
+}
+
+/**
+ * Small label bubble shown under an icon-only control on mobile
+ * (appears on hover, keyboard focus, or tap)
+ */
+function MenuBubble({ label }: { label: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] -translate-x-1/2 scale-90 whitespace-nowrap rounded-lg clay-sm px-2 py-1 text-[11px] font-bold clay-text opacity-0 transition-all duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100 sm:hidden"
+    >
+      {label}
+    </span>
   );
 }
 
@@ -94,7 +114,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={handleToggle}
-      className="clay-sm px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 transition-transform duration-200"
+      className="clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap"
       title={theme === "light" ? "Mode Gelap" : "Mode Terang"}
       aria-label={theme === "light" ? "Aktifkan mode gelap" : "Aktifkan mode terang"}
     >
@@ -118,7 +138,7 @@ export function SoundToggle() {
   return (
     <button
       onClick={handleToggle}
-      className="clay-sm px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 transition-transform duration-200"
+      className="clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap"
       title={soundEnabled ? "Matikan Suara" : "Hidupkan Suara"}
       aria-label={soundEnabled ? "Matikan suara" : "Hidupkan suara"}
     >
@@ -153,7 +173,7 @@ export function FontSizeToggle() {
   return (
     <button
       onClick={handleToggle}
-      className={`clay-sm px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 transition-transform duration-200 ${largeFont ? "ring-2 ring-[#a8e6cf]" : ""}`}
+      className={`clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap ${largeFont ? "ring-2 ring-[#a8e6cf]" : ""}`}
       title={largeFont ? "Font Normal" : "Font Besar"}
       aria-label={largeFont ? "Kembalikan ukuran font normal" : "Perbesar ukuran font"}
     >
