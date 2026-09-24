@@ -126,7 +126,7 @@ function Footer() {
           <span className="font-bold clay-text">TTS Anak Pintar</span>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          © 2026 TTS Anak Pintar — Belajar sambil bermain ✨
+          © 2026 Khazana Creative — Belajar sambil bermain ✨
         </p>
       </div>
     </footer>
