@@ -40,7 +40,7 @@ const CELL_VARIANT_CLASSES: Record<CellVariant, string> = {
   correct:
     "bg-gradient-to-br from-[#a8e6cf]/80 to-[#7ed5b0]/80 text-green-900",
   wrong: "bg-gradient-to-br from-[#ffd3b6] to-[#ffb3a7] text-gray-900",
-  empty: "bg-white dark:bg-gray-700 clay-pressed",
+  empty: "clay-cell",
 };
 
 export default function CrosswordGame({
@@ -123,7 +123,7 @@ export default function CrosswordGame({
               )}
             >
               {cell.isBlocked ? (
-                <div className="aspect-square bg-[#dde2ec] dark:bg-[#39415a] rounded-sm" />
+                <div className="aspect-square bg-[#dde2ec] dark:bg-[#39415a] rounded-[5px]" />
               ) : (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
@@ -131,7 +131,7 @@ export default function CrosswordGame({
                   className={cn(
                     "aspect-square w-full flex items-center justify-center",
                     "text-xs sm:text-sm font-bold",
-                    "rounded-sm transition-all duration-150",
+                    "rounded-[6px] transition-all duration-150",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a8e6cf]",
                     "select-none touch-manipulation",
                     // On mobile the board shrinks to fit the screen instead of
@@ -162,7 +162,7 @@ export default function CrosswordGame({
       </div>
 
       {/* Word count indicator */}
-      <div className="flex justify-center gap-4 mt-4 text-xs text-gray-500">
+      <div className="flex justify-center gap-4 mt-4 text-xs text-gray-500 dark:text-gray-400">
         <span>
           ✅ {foundWords.size}/{puzzle.words.length} kata ditemukan
         </span>

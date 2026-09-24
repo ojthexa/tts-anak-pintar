@@ -838,10 +838,10 @@ function CluesPanel({
               onClick={() => onClueClick(word.index)}
               className={`w-full text-left p-2 rounded-lg text-sm transition-all ${
                 foundWords.has(word.id)
-                  ? "opacity-50 line-through"
+                  ? "opacity-50 line-through clay-text"
                   : activeClueIndex === word.index
-                  ? "clay-pressed font-semibold"
-                  : "hover:clay-pressed"
+                  ? "clay-pressed font-semibold clay-text"
+                  : "hover:clay-pressed clay-text"
               }`}
             >
               <span className="font-bold mr-2">{word.index + 1}.</span>
@@ -866,10 +866,10 @@ function CluesPanel({
               onClick={() => onClueClick(word.index)}
               className={`w-full text-left p-2 rounded-lg text-sm transition-all ${
                 foundWords.has(word.id)
-                  ? "opacity-50 line-through"
+                  ? "opacity-50 line-through clay-text"
                   : activeClueIndex === word.index
-                  ? "clay-pressed font-semibold"
-                  : "hover:clay-pressed"
+                  ? "clay-pressed font-semibold clay-text"
+                  : "hover:clay-pressed clay-text"
               }`}
             >
               <span className="font-bold mr-2">{word.index + 1}.</span>

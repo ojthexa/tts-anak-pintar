@@ -41,7 +41,7 @@ export function NavLinks() {
               await signOut();
               window.location.href = "/";
             }}
-            className="group relative clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap"
+            className="group relative clay-sm h-9 w-9 flex items-center justify-center text-[17px] leading-none clay-text hover:scale-105 active:scale-95 transition-transform duration-200 shrink-0"
             title="Keluar"
             aria-label="Keluar"
           >
@@ -78,7 +78,14 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       aria-label={label}
     >
-      {icon && <span aria-hidden="true">{icon}</span>}
+      {icon && (
+        <span
+          aria-hidden="true"
+          className="inline-flex h-5 w-5 items-center justify-center text-[17px] leading-none"
+        >
+          {icon}
+        </span>
+      )}
       <span className="hidden sm:inline font-bold">{children}</span>
       <MenuBubble label={label} />
     </Link>
@@ -114,7 +121,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={handleToggle}
-      className="clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap"
+      className="clay-sm h-9 w-9 flex items-center justify-center text-[17px] leading-none clay-text hover:scale-105 active:scale-95 transition-transform duration-200 shrink-0"
       title={theme === "light" ? "Mode Gelap" : "Mode Terang"}
       aria-label={theme === "light" ? "Aktifkan mode gelap" : "Aktifkan mode terang"}
     >
@@ -138,7 +145,7 @@ export function SoundToggle() {
   return (
     <button
       onClick={handleToggle}
-      className="clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap"
+      className="clay-sm h-9 w-9 flex items-center justify-center text-[17px] leading-none clay-text hover:scale-105 active:scale-95 transition-transform duration-200 shrink-0"
       title={soundEnabled ? "Matikan Suara" : "Hidupkan Suara"}
       aria-label={soundEnabled ? "Matikan suara" : "Hidupkan suara"}
     >
@@ -173,7 +180,7 @@ export function FontSizeToggle() {
   return (
     <button
       onClick={handleToggle}
-      className={`clay-sm px-2.5 sm:px-3 py-2 text-sm flex items-center gap-1.5 clay-text hover:scale-105 active:scale-95 transition-transform duration-200 whitespace-nowrap ${largeFont ? "ring-2 ring-[#a8e6cf]" : ""}`}
+      className={`clay-sm h-9 w-9 flex items-center justify-center text-[17px] leading-none clay-text hover:scale-105 active:scale-95 transition-transform duration-200 shrink-0 ${largeFont ? "ring-2 ring-[#a8e6cf]" : ""}`}
       title={largeFont ? "Font Normal" : "Font Besar"}
       aria-label={largeFont ? "Kembalikan ukuran font normal" : "Perbesar ukuran font"}
     >
