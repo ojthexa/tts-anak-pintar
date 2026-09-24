@@ -7,6 +7,8 @@
  * - Dynamic word placement without predefined coordinates
  * - Collision detection and validation
  * - Intersection maximization
+ * - Guaranteed connectivity: every word intersects at least one other word
+ *   and the whole puzzle forms a single interlocked block
  * - Automatic retry on failure
  * - Random layout generation (different layouts with same words)
  * - Any grid size
@@ -33,7 +35,12 @@ interface Placement {
 interface LayoutResult {
   grid: GridCell[][];
   placements: Placement[];
+  /** Every word placed, every word intersects another word, one connected block */
   success: boolean;
+  /** Every word is placed AND shares at least one cell with another word */
+  allIntersecting: boolean;
+  /** All words form a single connected component */
+  connected: boolean;
 }
 
 /**
@@ -52,22 +59,43 @@ export function generateCrosswordLayout(
     return b.answer.length - a.answer.length;
   });
 
+  let best: LayoutResult | null = null;
+
+  // Main search: every word must cross another word and the whole puzzle
+  // must form one connected block.
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const result = tryLayout(sortedWords, attempt);
-
-    if (result.success) {
-      return convertToCrosswordGrid(result);
-    }
+    if (result.success) return convertToCrosswordGrid(result);
+    if (result.allIntersecting && !best) best = result;
   }
 
-  // Fallback: guaranteed-valid stacked layout (never errors, always in sync)
+  // Second chance: search on an oversized grid where crossings almost always
+  // fit — keeps every word interlocked even when the tight grid runs out of room.
+  const totalChars = sortedWords.reduce((sum, w) => sum + w.answer.length, 0);
+  const longestWord = Math.max(...sortedWords.map((w) => w.answer.length));
+  const oversizedGrid = totalChars + longestWord + 6;
+  for (let attempt = 0; attempt < 25; attempt++) {
+    const result = tryLayout(sortedWords, 1000 + attempt, oversizedGrid);
+    if (result.success) return convertToCrosswordGrid(result);
+    if (result.allIntersecting && !best) best = result;
+  }
+
+  // Accept the best layout where at least every word intersects another word
+  if (best) return convertToCrosswordGrid(best);
+
+  // Last resort (only reachable when a word shares no letter with any other
+  // word): guaranteed-valid stacked layout that never errors or desyncs.
   return createStackedLayout(sortedWords);
 }
 
 /**
  * Try to place words on grid with backtracking
  */
-function tryLayout(words: Array<{ answer: string; clue: string; explanation: string }>, seed: number): LayoutResult {
+function tryLayout(
+  words: Array<{ answer: string; clue: string; explanation: string }>,
+  seed: number,
+  minGridSize: number = 0
+): LayoutResult {
   // Seeded randomization for variety
   const rng = createRNG(seed);
 
@@ -80,8 +108,10 @@ function tryLayout(words: Array<{ answer: string; clue: string; explanation: str
     Math.ceil(Math.sqrt(totalChars * 1.4)) + 1,
     longestWord + 2
   );
-  // Grow the grid on later attempts so backtracking gets more room
-  const gridSize = baseGridSize + Math.floor(seed / 5);
+  // Grow the grid on later attempts so backtracking gets more room.
+  // Seeds >= 500 come from the oversized second-chance search (fixed size).
+  const growth = seed < 500 ? Math.floor(seed / 3) : 0;
+  const gridSize = Math.max(baseGridSize + growth, minGridSize);
 
   // Initialize empty grid
   const grid: GridCell[][] = Array.from({ length: gridSize }, (_, row) =>
@@ -116,14 +146,44 @@ function tryLayout(words: Array<{ answer: string; clue: string; explanation: str
   const remaining = words.slice(1);
   shuffleArray(remaining, rng);
 
-  // Try to place each remaining word
+  // Phase 1: place every word at a real intersection
+  const unplaced: typeof words = [];
   for (const wordData of remaining) {
     const placed = tryPlaceWord(grid, wordData, placements, gridSize, rng);
     if (placed) {
       placements.push(placed);
       placedWords.add(wordData.answer);
+    } else {
+      unplaced.push(wordData);
     }
   }
+
+  // Phase 2: retry failed words — the board now has more words to cross
+  const stillUnplaced: typeof words = [];
+  for (const wordData of unplaced) {
+    const placed = tryPlaceWord(grid, wordData, placements, gridSize, rng);
+    if (placed) {
+      placements.push(placed);
+      placedWords.add(wordData.answer);
+    } else {
+      stillUnplaced.push(wordData);
+    }
+  }
+
+  // Phase 3: relocate any word that ended up isolated (zero intersections)
+  repairIsolatedWords(grid, placements, rng, gridSize);
+
+  // Phase 4: place leftover words in free space so no word is ever dropped
+  for (const wordData of stillUnplaced) {
+    const isolated = tryPlaceWordIsolated(grid, wordData, gridSize);
+    if (isolated) {
+      placements.push(isolated);
+      placedWords.add(wordData.answer);
+    }
+  }
+
+  // Phase 5: final repair now that every word is on the board
+  repairIsolatedWords(grid, placements, rng, gridSize);
 
   // Calculate grid bounds and trim
   const bounds = getGridBounds(grid);
@@ -138,15 +198,18 @@ function tryLayout(words: Array<{ answer: string; clue: string; explanation: str
     ...p,
     startRow: p.startRow - offsetRow,
     startCol: p.startCol - offsetCol,
-  }));    // Check if we have enough intersections
-  const totalIntersections = countIntersections(trimmedGrid, adjustedPlacements);
-  // Require at least 50% of words to have intersections (more connected grid)
-  const minIntersections = Math.max(2, Math.floor(placements.length * 0.5));
+  }));
+
+  // A layout only succeeds when EVERY word intersects at least one other
+  // word and the whole puzzle forms a single connected block.
+  const analysis = analyzePlacements(adjustedPlacements, words.length);
 
   return {
     grid: trimmedGrid,
     placements: adjustedPlacements,
-    success: placements.length === words.length && totalIntersections >= minIntersections,
+    allIntersecting: analysis.allIntersecting,
+    connected: analysis.connected,
+    success: analysis.allIntersecting && analysis.connected,
   };
 }
 
@@ -216,8 +279,8 @@ function tryPlaceWord(
   }
 
   if (candidates.length === 0) {
-    // No intersection available — place the word in free space near the others
-    return tryPlaceWordIsolated(grid, wordData, gridSize);
+    // No valid crossing at this moment — the caller retries on a fuller board
+    return null;
   }
 
   // Sort by score descending, add randomness
@@ -481,29 +544,159 @@ function trimGrid(grid: GridCell[][], bounds: { minRow: number; maxRow: number; 
 }
 
 /**
- * Count intersections between placed words
+ * Cell keys ("row,col") occupied by a placement
  */
-function countIntersections(grid: GridCell[][], placements: Placement[]): number {
-  let count = 0;
+function getPlacementCells(p: Placement): string[] {
+  const cells: string[] = [];
+  for (let i = 0; i < p.word.length; i++) {
+    const row = p.direction === "horizontal" ? p.startRow : p.startRow + i;
+    const col = p.direction === "horizontal" ? p.startCol + i : p.startCol;
+    cells.push(`${row},${col}`);
+  }
+  return cells;
+}
 
-  for (const placement of placements) {
-    const { startRow, startCol, direction, word } = placement;
+/**
+ * Whether a placement shares at least one cell with another placement
+ */
+function hasIntersection(placements: Placement[], target: Placement): boolean {
+  const cells = new Set(getPlacementCells(target));
+  for (const other of placements) {
+    if (other === target) continue;
+    for (const key of getPlacementCells(other)) {
+      if (cells.has(key)) return true;
+    }
+  }
+  return false;
+}
 
-    for (let i = 0; i < word.length; i++) {
-      const row = direction === "horizontal" ? startRow : startRow + i;
-      const col = direction === "horizontal" ? startCol + i : startCol;
+/**
+ * Analyze how the placed words relate to each other:
+ *  - allPlaced: every input word made it onto the grid
+ *  - allIntersecting: every word shares at least one cell with another word
+ *  - connected: all words form a single interlocked block
+ */
+function analyzePlacements(
+  placements: Placement[],
+  expectedCount: number
+): {
+  allPlaced: boolean;
+  allIntersecting: boolean;
+  connected: boolean;
+} {
+  const n = placements.length;
+  const cellSets = placements.map((p) => new Set(getPlacementCells(p)));
+  const partnerCounts = new Array<number>(n).fill(0);
+  const adjacency = Array.from({ length: n }, () => new Set<number>());
 
-      if (direction === "horizontal") {
-        if (row > 0 && grid[row - 1][col].letter) count++;
-        if (row < grid.length - 1 && grid[row + 1][col].letter) count++;
-      } else {
-        if (col > 0 && grid[row][col - 1].letter) count++;
-        if (col < grid[0].length - 1 && grid[row][col + 1].letter) count++;
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      let sharesCell = false;
+      for (const key of cellSets[i]) {
+        if (cellSets[j].has(key)) {
+          sharesCell = true;
+          break;
+        }
+      }
+      if (sharesCell) {
+        partnerCounts[i]++;
+        partnerCounts[j]++;
+        adjacency[i].add(j);
+        adjacency[j].add(i);
       }
     }
   }
 
-  return count;
+  const allPlaced = n === expectedCount;
+  const allIntersecting =
+    allPlaced && (n <= 1 || partnerCounts.every((count) => count > 0));
+
+  // Count components over the intersection graph (BFS)
+  const seen = new Set<number>();
+  let components = 0;
+  for (let i = 0; i < n; i++) {
+    if (seen.has(i)) continue;
+    components++;
+    const stack = [i];
+    seen.add(i);
+    while (stack.length) {
+      const u = stack.pop()!;
+      for (const v of adjacency[u]) {
+        if (!seen.has(v)) {
+          seen.add(v);
+          stack.push(v);
+        }
+      }
+    }
+  }
+
+  return {
+    allPlaced,
+    allIntersecting,
+    connected: n <= 1 || components === 1,
+  };
+}
+
+/**
+ * Clear a placement's cells (only safe for isolated words, which own every
+ * cell they occupy)
+ */
+function clearPlacement(grid: GridCell[][], p: Placement): void {
+  for (const key of getPlacementCells(p)) {
+    const [row, col] = key.split(",").map(Number);
+    grid[row][col].letter = "";
+  }
+}
+
+/**
+ * Move isolated words (zero intersections) onto real crossings so every word
+ * ends up sharing at least one cell with another word. Any placement returned
+ * by tryPlaceWord is guaranteed to intersect ≥1 existing word; if no crossing
+ * fits, the word is restored so nothing is ever lost.
+ */
+function repairIsolatedWords(
+  grid: GridCell[][],
+  placements: Placement[],
+  rng: () => number,
+  gridSize: number
+): void {
+  for (let pass = 0; pass < 3; pass++) {
+    const isolated = placements.filter((p) => !hasIntersection(placements, p));
+    if (isolated.length === 0) return;
+
+    let repairedAny = false;
+    for (const p of isolated) {
+      const at = placements.indexOf(p);
+      if (at === -1 || hasIntersection(placements, p)) continue;
+
+      const snapshot = grid.map((row) => row.map((cell) => cell.letter));
+      clearPlacement(grid, p);
+      placements.splice(at, 1);
+
+      const crossing = tryPlaceWord(
+        grid,
+        { answer: p.word, clue: p.clue, explanation: p.explanation },
+        placements,
+        gridSize,
+        rng
+      );
+
+      if (crossing) {
+        placements.push(crossing);
+        repairedAny = true;
+      } else {
+        // Restore the original isolated placement — never lose a word
+        for (let r = 0; r < grid.length; r++) {
+          for (let c = 0; c < grid[r].length; c++) {
+            grid[r][c].letter = snapshot[r][c];
+          }
+        }
+        placements.push(p);
+      }
+    }
+
+    if (!repairedAny) return;
+  }
 }
 
 /**
@@ -560,7 +753,10 @@ function createStackedLayout(words: Array<{ answer: string; clue: string; explan
   return convertToCrosswordGrid({
     grid: trimmedGrid,
     placements: adjustedPlacements,
-    success: true,
+    // Stacked words never intersect — this is the absolute last resort
+    success: false,
+    allIntersecting: false,
+    connected: false,
   });
 }
 

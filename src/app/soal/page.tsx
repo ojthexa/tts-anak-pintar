@@ -356,7 +356,7 @@ export default function SoalPage() {
                       transition={{ delay: i * 0.03 }}
                       className="clay-sm p-3 text-sm flex items-start gap-3"
                     >
-                      <span className="shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-[#a8e6cf] to-[#7ed5b0] text-white text-xs font-bold flex items-center justify-center">
+                      <span className="shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-[#a8e6cf] to-[#7ed5b0] text-gray-900 text-xs font-bold flex items-center justify-center">
                         {i + 1}
                       </span>
                       <div>
@@ -418,7 +418,7 @@ function FilterChip({
       onClick={onClick}
       className={`${sizeClasses} rounded-full font-semibold transition-all duration-200 inline-flex items-center gap-1.5 ${
         active
-          ? "bg-gradient-to-r from-[#a8e6cf] to-[#7ed5b0] text-white shadow-lg shadow-[#a8e6cf]/30"
+          ? "bg-gradient-to-r from-[#a8e6cf] to-[#7ed5b0] text-gray-900 shadow-lg shadow-[#a8e6cf]/30"
           : "clay-sm clay-text hover:shadow-md"
       }`}
       style={
@@ -429,7 +429,7 @@ function FilterChip({
           : undefined
       }
     >
-      <span className={active ? "text-white" : ""}>
+      <span className={active ? "text-gray-900" : ""}>
         {icon === "🌱" || icon === "🔥" || icon === "💀" ? (
           icon
         ) : (
@@ -505,7 +505,7 @@ function PuzzleCard({
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
             className="w-7 h-7 rounded-full bg-gradient-to-br from-[#a8e6cf] to-[#7ed5b0] flex items-center justify-center shadow-lg"
           >
-            <span className="text-white text-sm font-bold">✓</span>
+            <span className="text-gray-900 text-sm font-bold">✓</span>
           </motion.div>
         )}
       </div>

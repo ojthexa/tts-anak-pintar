@@ -18,6 +18,31 @@ interface CrosswordGameProps {
   onCellInput: (row: number, col: number, letter: string) => void;
 }
 
+type CellVariant =
+  | "active"
+  | "highlight"
+  | "found"
+  | "correct"
+  | "wrong"
+  | "empty";
+
+/**
+ * Cell styles per state. Pastel backgrounds are light in BOTH light and dark
+ * mode, so they always pair with dark text — white on pastel is unreadable
+ * (~1.4:1 contrast).
+ */
+const CELL_VARIANT_CLASSES: Record<CellVariant, string> = {
+  active:
+    "bg-gradient-to-br from-[#a8e6cf] to-[#7ed5b0] text-gray-900 shadow-md scale-110 z-10",
+  highlight: "bg-gradient-to-br from-[#d4c5f9] to-[#b8a4e8] text-gray-900",
+  found:
+    "bg-gradient-to-br from-[#a8e6cf]/60 to-[#7ed5b0]/60 text-green-900 dark:text-green-950",
+  correct:
+    "bg-gradient-to-br from-[#a8e6cf]/80 to-[#7ed5b0]/80 text-green-900",
+  wrong: "bg-gradient-to-br from-[#ffd3b6] to-[#ffb3a7] text-gray-900",
+  empty: "bg-white dark:bg-gray-700 clay-pressed",
+};
+
 export default function CrosswordGame({
   puzzle,
   userGrid,
@@ -73,6 +98,20 @@ export default function CrosswordGame({
             foundWords.has(id)
           );
 
+          // Visual variant drives background AND text color (dark text on
+          // pastel backgrounds so letters stay readable in both modes)
+          const variant: CellVariant = isActive
+            ? "active"
+            : isHighlighted && !isPartOfFoundWord
+            ? "highlight"
+            : isPartOfFoundWord && isCorrect
+            ? "found"
+            : isCorrect
+            ? "correct"
+            : userLetter
+            ? "wrong"
+            : "empty";
+
           return (
             <div
               key={`${row}-${col}`}
@@ -95,17 +134,7 @@ export default function CrosswordGame({
                     "rounded-sm transition-all duration-150",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a8e6cf]",
                     "select-none",
-                    isActive
-                      ? "bg-gradient-to-br from-[#a8e6cf] to-[#7ed5b0] text-white shadow-md scale-110 z-10"
-                      : isHighlighted && !isPartOfFoundWord
-                      ? "bg-gradient-to-br from-[#d4c5f9] to-[#b8a4e8] text-white"
-                      : isPartOfFoundWord && isCorrect
-                      ? "bg-gradient-to-br from-[#a8e6cf]/60 to-[#7ed5b0]/60 text-green-800 dark:text-green-200"
-                      : isCorrect
-                      ? "bg-gradient-to-br from-[#a8e6cf]/80 to-[#7ed5b0]/80 text-white"
-                      : userLetter
-                      ? "bg-gradient-to-br from-[#ffd3b6] to-[#ffb3a7] text-white"
-                      : "bg-white dark:bg-gray-700 clay-pressed"
+                    CELL_VARIANT_CLASSES[variant]
                   )}
                   style={{
                     minWidth: "28px",
@@ -114,7 +143,14 @@ export default function CrosswordGame({
                 >
                   <span className="relative z-10 text-[11px]">{userLetter || ""}</span>
                   {cell.number && (
-                    <span className="absolute top-0 left-0.5 text-[7px] font-bold text-gray-500 dark:text-gray-400 leading-none pointer-events-none select-none">
+                    <span
+                      className={cn(
+                        "absolute top-0 left-0.5 text-[7px] font-bold leading-none pointer-events-none select-none",
+                        variant === "empty"
+                          ? "text-gray-500 dark:text-gray-400"
+                          : "text-gray-800"
+                      )}
+                    >
                       {cell.number}
                     </span>
                   )}

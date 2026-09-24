@@ -397,7 +397,7 @@ function PuzzleCard({
             animate={{ scale: 1 }}
             className="w-6 h-6 rounded-full bg-gradient-to-br from-[#a8e6cf] to-[#7ed5b0] flex items-center justify-center"
           >
-            <span className="text-white text-xs">✓</span>
+            <span className="text-gray-900 text-xs">✓</span>
           </motion.div>
         )}
       </div>
