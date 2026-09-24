@@ -168,6 +168,28 @@ export async function getUserStats(userId: string) {
 }
 
 /**
+ * Count completed puzzles per subject for a user (drives dashboard progress bars)
+ */
+export async function getUserSubjectProgress(
+  userId: string
+): Promise<Record<string, number>> {
+  const supabase = getSupabaseClient();
+  const { data } = await supabase
+    .from("puzzle_attempts")
+    .select("puzzle_id, puzzles(subject)")
+    .eq("user_id", userId)
+    .eq("completed", true);
+
+  const counts: Record<string, number> = {};
+  for (const row of data || []) {
+    const subject = (row as unknown as { puzzles?: { subject?: string | null } | null })
+      .puzzles?.subject;
+    if (subject) counts[subject] = (counts[subject] || 0) + 1;
+  }
+  return counts;
+}
+
+/**
  * Format puzzle data from database
  */
 function formatPuzzleData(data: Record<string, unknown>): CrosswordPuzzle {

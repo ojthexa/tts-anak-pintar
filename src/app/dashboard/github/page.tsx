@@ -214,7 +214,7 @@ export default function GitHubDashboardPage() {
                   href={`https://github.com/${user.login}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-gray-500 hover:text-[#a8e6cf] transition-colors flex items-center gap-1"
+                  className="text-sm text-gray-500 hover:text-emerald-700 dark:hover:text-[#a8e6cf] transition-colors flex items-center gap-1"
                 >
                   @{user.login}
                   <ExternalLink size={12} />
@@ -368,7 +368,7 @@ export default function GitHubDashboardPage() {
           transition={{ delay: 0.5 }}
           className="clay-sm p-4 mt-8 flex items-start gap-3"
         >
-          <Info size={18} className="text-gray-400 mt-0.5 flex-shrink-0" />
+          <Info size={18} className="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
           <div>
             <p className="text-sm clay-text font-semibold mb-1">
               Tentang Integrasi GitHub

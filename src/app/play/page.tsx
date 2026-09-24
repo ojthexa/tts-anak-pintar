@@ -339,7 +339,7 @@ export default function PlayPage() {
         </motion.div>
 
         {!selectedMode && (
-          <p className="text-center text-gray-400 clay-text">
+          <p className="text-center text-gray-600 dark:text-gray-400">
             Pilih mode bermain di atas untuk memulai
           </p>
         )}

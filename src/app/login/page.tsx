@@ -108,7 +108,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowForgot(true)}
-                  className="text-sm text-[#a8e6cf] hover:underline font-semibold"
+                  className="text-sm text-emerald-700 dark:text-[#a8e6cf] hover:underline font-semibold"
                 >
                   Lupa Password?
                 </button>
@@ -168,7 +168,7 @@ export default function LoginPage() {
             Belum punya akun?{" "}
             <Link
               href="/register"
-              className="font-bold text-[#a8e6cf] hover:underline"
+              className="font-bold text-emerald-700 dark:text-[#a8e6cf] hover:underline"
             >
               Daftar Sekarang
             </Link>

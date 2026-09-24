@@ -37,14 +37,14 @@ export default function ExplanationModal({ word, open, onClose }: ExplanationMod
             <h3 className="text-lg font-bold clay-text mb-1">
               {word.clue}
             </h3>
-            <div className="text-2xl font-extrabold text-[#a8e6cf] mb-3">
+            <div className="text-2xl font-extrabold text-emerald-700 dark:text-[#a8e6cf] mb-3">
               {word.answer}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
               {word.explanation}
             </p>
             {word.sourceMetadata && (
-              <div className="text-xs text-gray-400 mb-4">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-4">
                 Sumber: {word.sourceMetadata.reference || word.sourceMetadata.type}
               </div>
             )}

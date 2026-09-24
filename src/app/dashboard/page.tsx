@@ -7,7 +7,8 @@ import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
 import { SUBJECTS, ACHIEVEMENTS } from "@/lib/constants";
 import { formatTime, formatDate } from "@/lib/utils";
-import { getUserStats, getUserPuzzleHistory } from "@/services/supabase/puzzles";
+import { getUserStats, getUserPuzzleHistory, getUserSubjectProgress } from "@/services/supabase/puzzles";
+import { PREBUILT_PUZZLES } from "@/data/puzzles";
 
 export default function DashboardPage() {
   const { user, profile, isAuthenticated, isLoading } = useAuth();
@@ -20,6 +21,7 @@ export default function DashboardPage() {
     accuracy: 0,
     currentStreak: 0,
   });
+  const [subjectProgress, setSubjectProgress] = useState<Record<string, number>>({});
   const [recentGames, setRecentGames] = useState<Array<{
     id: string;
     score: number;
@@ -66,6 +68,17 @@ export default function DashboardPage() {
       }
     };
     loadHistory();
+
+    // Load real per-subject progress (stable bars, no random jumps)
+    const loadProgress = async () => {
+      try {
+        const data = await getUserSubjectProgress(profile.id);
+        setSubjectProgress(data);
+      } catch {
+        // Use defaults
+      }
+    };
+    loadProgress();
   }, [profile?.id]);
 
   if (isLoading || !profile) {
@@ -116,7 +129,7 @@ export default function DashboardPage() {
             </div>
 
             {/* XP & Coins */}
-            <div className="flex gap-4">
+            <div className="flex flex-wrap justify-center gap-4 sm:justify-end">
               <div className="clay-sm px-4 py-3 text-center">
                 <div className="text-lg font-bold clay-text">{profile.xp} XP</div>
                 <div className="text-xs text-gray-500">Total XP</div>
@@ -201,27 +214,38 @@ export default function DashboardPage() {
         >
           <h2 className="text-xl font-bold clay-text mb-4">Mata Pelajaran</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(SUBJECTS).map(([key, subject]) => (
-              <Link
-                key={key}
-                href={`/play?subject=${key}`}
-                className="clay p-4 hover:scale-[1.02] transition-all duration-200"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-2xl">{subject.icon}</span>
-                  <h3 className="font-bold clay-text">{subject.label}</h3>
-                </div>
-                <div className="clay-inset h-2 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.random() * 60}%`,
-                      backgroundColor: subject.color,
-                    }}
-                  />
-                </div>
-              </Link>
-            ))}
+            {Object.entries(SUBJECTS).map(([key, subject]) => {
+              const completed = subjectProgress[key] ?? 0;
+              const available = PREBUILT_PUZZLES.filter((p) => p.subject === key).length;
+              const percent =
+                available > 0 ? Math.min(100, Math.round((completed / available) * 100)) : 0;
+              return (
+                <Link
+                  key={key}
+                  href={`/play?subject=${key}`}
+                  className="clay p-4 hover:scale-[1.02] transition-all duration-200"
+                >
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-2xl">{subject.icon}</span>
+                      <h3 className="font-bold clay-text truncate">{subject.label}</h3>
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {completed}/{available} selesai
+                    </span>
+                  </div>
+                  <div className="clay-inset h-2 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${percent}%`,
+                        backgroundColor: subject.color,
+                      }}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </motion.div>
 
@@ -282,7 +306,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
                         {formatDate(game.created_at)}
                       </div>
                     </div>

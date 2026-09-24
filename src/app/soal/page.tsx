@@ -104,7 +104,7 @@ export default function SoalPage() {
           className="max-w-md mx-auto mb-6"
         >
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-gray-400">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-gray-500 dark:text-gray-400">
               🔍
             </span>
             <input
@@ -112,12 +112,12 @@ export default function SoalPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari soal..."
-              className="clay-sm w-full pl-12 pr-4 py-3 text-sm clay-text placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#a8e6cf] transition-all"
+              className="clay-sm w-full pl-12 pr-4 py-3 text-sm clay-text placeholder:text-gray-500 dark:placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-[#a8e6cf] transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
               >
                 ✕
               </button>
@@ -318,7 +318,7 @@ export default function SoalPage() {
                         {selectedPuzzle.words.length} kata
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-2 italic">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 italic">
                       Tema: {selectedPuzzle.theme}
                     </p>
                   </div>
@@ -335,7 +335,7 @@ export default function SoalPage() {
                   </motion.button>
                   <button
                     onClick={() => setSelectedPuzzle(null)}
-                    className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                   >
                     Batal pilih
                   </button>
@@ -361,9 +361,9 @@ export default function SoalPage() {
                       </span>
                       <div>
                         <p className="clay-text font-semibold">{w.clue}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                           Jawaban:{" "}
-                          <span className="font-mono font-bold text-[#a8e6cf]">
+                          <span className="font-mono font-bold text-emerald-700 dark:text-[#a8e6cf]">
                             {w.answer.length} huruf
                           </span>
                         </p>
@@ -381,7 +381,7 @@ export default function SoalPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-center mt-8 text-sm text-gray-400"
+          className="text-center mt-8 text-sm text-gray-600 dark:text-gray-400"
         >
           Menampilkan{" "}
           <strong className="clay-text">{filteredPuzzles.length}</strong> dari{" "}
@@ -493,7 +493,7 @@ function PuzzleCard({
             <h3 className="text-base font-bold clay-text leading-tight">
               {puzzle.title}
             </h3>
-            <p className="text-[10px] text-gray-400 leading-tight mt-0.5">
+            <p className="text-[10px] text-gray-600 dark:text-gray-400 leading-tight mt-0.5">
               {puzzle.words.length} soal
             </p>
           </div>

@@ -94,7 +94,7 @@ function Navbar() {
     <header className="sticky top-0 z-50 clay-sm mx-4 mt-2 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <a href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 rounded-full clay-colored flex items-center justify-center text-xl group-hover:animate-wiggle">
+          <div className="w-10 h-10 rounded-full clay-colored clay-flat flex items-center justify-center text-xl group-hover:animate-wiggle">
             🧩
           </div>
           <span className="font-bold text-lg clay-text hidden sm:block">

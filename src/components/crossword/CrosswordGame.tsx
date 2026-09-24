@@ -114,7 +114,7 @@ export default function CrosswordGame({
                 >
                   <span className="relative z-10 text-[11px]">{userLetter || ""}</span>
                   {cell.number && (
-                    <span className="absolute top-0 left-0.5 text-[7px] font-bold text-gray-400 dark:text-gray-500 leading-none pointer-events-none select-none">
+                    <span className="absolute top-0 left-0.5 text-[7px] font-bold text-gray-500 dark:text-gray-400 leading-none pointer-events-none select-none">
                       {cell.number}
                     </span>
                   )}

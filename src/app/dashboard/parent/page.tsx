@@ -159,7 +159,7 @@ export default function ParentDashboard() {
                         );
                       })
                     ) : (
-                      <span className="text-xs text-gray-400">Belum ada data</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Belum ada data</span>
                     )}
                   </div>
                 </div>
